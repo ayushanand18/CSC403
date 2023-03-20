@@ -1,20 +1,17 @@
-from math import sqrt
-
-def mod(pair: list) -> int:
-    """
-    Returns the modulus of vector 'pair'.
-    """
-    return sqrt(pair[0]**2 + pair[1]**2)
+from math import sqrt, atan, pi
 
 def cosine_angle(pr: list, p0: list) -> float:
     """
-    Returns the cosine of angle between pr and p0.
+    Returns the angle between pr and p0 (measured as arctan in radians).
     """
-    return (pr[0]*p0[0]+pr[1]*p0[1])/(mod(pr)*mod(p0))
+    if(p0[0]>pr[0]):
+        return pi/2+atan((p0[0]-pr[0])/(pr[1]-p0[1]))
+    else:
+        return atan((pr[1]-p0[1])/(pr[0]-p0[0]))
 
 def ccw(p1: list, p2: list, p3: list) -> int:
     """
-    Returns the Counterclockwise or not.
+    Returns the cross product of the three vectors.
     """
     v1 = [p2[0]-p1[0], p2[1]-p1[1]]
     v2 = [p3[0]-p2[0], p3[1]-p2[1]]
@@ -28,7 +25,7 @@ def graham_scan(arr: list) -> list:
     :return: [list] List of points in the convex hull.
     """
     # get the least y coordinate point
-    arr.sort(key = lambda pr: pr[1], reverse = False)
+    arr.sort(key = lambda pr: pr[1])
     p0 = arr.pop(0)
 
     # initialize empty stack
@@ -36,7 +33,6 @@ def graham_scan(arr: list) -> list:
 
     # now sort according the cosine of angle with p0
     arr.sort(key = lambda pr: cosine_angle(pr, p0))
-    print(arr)
     # now delete the farthest element which has the same cosine angle
     i = 0
     while(i<arr.__len__()):
@@ -53,12 +49,7 @@ def graham_scan(arr: list) -> list:
         while stack.__len__()>1 and ccw(stack[-2], stack[-1], point) <= 0:
             stack.pop(-1)
         stack.append(point)
-
+    # now add p0 to complete the polygon
+    stack.append(p0)
     # return the current stack at the end
     return stack
-print(cosine_angle([-1,1], [1,2]))
-print(cosine_angle([-1,1], [8,7]))
-input_p = [[1.1, 1.2], [-2,4], [-3,12], [4,-16], [12,8]]
-print(graham_scan(input_p))
-input_p = [[1,2], [3,4], [8,7], [5,6], [-1,1]]
-print(graham_scan(input_p))
